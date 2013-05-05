@@ -77,10 +77,13 @@ class App():
 		self.arg = arg
 
 	def eval(self, env):
-		fn = self.fn.eval(env)
-		arg = self.arg.eval(env)
+		def body():
+			fn = Thunk.un(self.fn.eval(env))
+			arg = self.arg.eval(env)
 
-		return fn.apply(arg)
+			return fn.apply(arg)
+
+		return Thunk(body)
 
 	def __repr__(self):
 		return self.__class__.__name__ + '(' + repr(self.fn) + ', ' + repr(self.arg) + ')'
@@ -107,7 +110,7 @@ class Ass():
 	def eval(self, env):
 		# Obtain the result of the sub-expression, which will be returned as
 		# the result of the overall expression.
-		result = self.value.eval(env)
+		result = Thunk.un(self.value.eval(env))
 
 		# Apply the side effect to the dictionary of globals.
 		globs = env.maps[-1]
@@ -166,6 +169,31 @@ class Closure():
 
 	def __str__(self):
 		return '\\' + str(self.param) + '.' + str(self.body) + ' [' + ','.join(self._non_globals()) + ']'
+
+class Thunk():
+	def __init__(self, body):
+		"""
+		body: function
+		"""
+
+		self.body = body
+
+	@staticmethod
+	def un(thing):
+		"""
+		Unthunk a value out of a potential thunk.
+		"""
+
+		while isinstance(thing, Thunk):
+			thing = thing.call()
+
+		return thing
+
+	def call(self):
+		return self.body()
+
+	def __repr__(self):
+		return 'Thunk'
 
 
 class Parser():
@@ -310,7 +338,7 @@ class REPL():
 		if not expr:
 			return ''
 
-		obj = expr.eval(self.globs)
+		obj = Thunk.un(expr.eval(self.globs))
 
 		try:
 			return obj.global_name

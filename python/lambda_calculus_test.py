@@ -132,6 +132,20 @@ class SyntaxText(TestCase):
 		eq_(['a', 'b'], a)
 
 
+class EvaluationTest(TestCase):
+	def testLaziness(self):
+		r = make_repl()
+
+		with assert_raises(LambdaError):
+			r.run_line(r'(id x)')
+
+		a = r.run_lines([
+			r'true a (id x)',
+			])
+
+		eq_(['a'], a)
+
+
 class BooleanTest(TestCase):
 	def testValues(self):
 		r = make_repl()

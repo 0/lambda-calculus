@@ -44,5 +44,7 @@ A full REPL that parses the usual syntax, with a few whistles (bells not yet imp
     \r.z [p,q]
     > (\p q r.z) id id id                         # Some error handling.
     Undefined variable: z
+    > false (id z) true                           # Lazy evaluation.
+    true
 
 Tested with [CPython](http://python.org/) 3.3.1. Significantly improved by [rlwrap](http://utopia.knoware.nl/~hlub/rlwrap/).
