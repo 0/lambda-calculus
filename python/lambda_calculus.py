@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from collections import ChainMap
+from collections import ChainMap, OrderedDict
 import re
 
 
@@ -311,18 +311,18 @@ class REPL():
 	Read, eval, print, loop.
 	"""
 
-	DEFAULTS = {
-			'id': r'\x.x',
+	DEFAULTS = OrderedDict([
+			('id', r'\x.x'),
 
 			# Church booleans.
-			'true':  r'\t f.t',
-			'false': r'\t f.f',
+			('true',  r'\t f.t'),
+			('false', r'\t f.f'),
 
-			'not': r'\p.p false true',
-			'and': r'\p q.p q p',
-			'or': r'\p q.p p q',
-			'xor': r'\p q.p (not q) q',
-			}
+			('not', r'\p.p false true'),
+			('and', r'\p q.p q p'),
+			('or', r'\p q.p p q'),
+			('xor', r'\p q.p (not q) q'),
+			])
 
 	def __init__(self):
 		self.parser = Parser()
