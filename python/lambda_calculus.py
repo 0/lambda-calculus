@@ -308,7 +308,7 @@ class REPL():
 		expr = self.parser.read(line)
 
 		if not expr:
-			raise LambdaError('No parse obtained for: ' + line)
+			return ''
 
 		obj = expr.eval(self.globs)
 
@@ -324,7 +324,10 @@ class REPL():
 		try:
 			while True:
 				try:
-					print(self.run_line(input('> ')))
+					result = self.run_line(input('> '))
+
+					if result:
+						print(result)
 				except LambdaError as exc:
 					print(exc)
 		except EOFError:
