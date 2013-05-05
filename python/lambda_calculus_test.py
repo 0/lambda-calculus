@@ -107,6 +107,31 @@ class AssTest(TestCase):
 		eq_(['x', 'x', 'id'], a)
 
 
+class SyntaxText(TestCase):
+	def testComments(self):
+		r = make_repl()
+
+		a = r.run_lines([
+			r'id # Just the function itself.',
+			r'c#No spaces!',
+			r'true a b # An application.',
+			r'(false a) id (true (id b)) c # A more complex expression.',
+			r'(\x.x) (true false false) # (\x.x) (false true true)',
+			])
+
+		eq_(['id', 'c', 'a', 'b', 'false'], a)
+
+	def testMultiline(self):
+		r = make_repl()
+
+		a = r.run_lines([
+			r'true' '\n' r'a' '\n' r'b',
+			r'false # With a comment.' '\n' r'a b',
+			])
+
+		eq_(['a', 'b'], a)
+
+
 class BooleanTest(TestCase):
 	def testValues(self):
 		r = make_repl()

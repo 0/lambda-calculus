@@ -189,9 +189,11 @@ class Parser():
 				(?P<LAMBDA>\\)|
 				(?P<EQUAL>=)|
 				(?P<DOT>\.)|
-				(?P<SYMBOL>[^\s()\\.]+)
-				""", re.VERBOSE)
+				(?P<COMMENT>\#.*?$)|
+				(?P<SYMBOL>[^\s()\\.#]+)
+				""", re.MULTILINE | re.VERBOSE)
 
+		ignored_tokens = {'COMMENT'}
 		simple_tokens = {'OPEN', 'CLOSE', 'LAMBDA', 'EQUAL', 'DOT'}
 		data_tokens = {'SYMBOL'}
 
@@ -200,7 +202,9 @@ class Parser():
 				if v is None:
 					continue
 
-				if k in simple_tokens:
+				if k in ignored_tokens:
+					continue
+				elif k in simple_tokens:
 					yield k, None
 				elif k in data_tokens:
 					yield k, v

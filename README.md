@@ -26,23 +26,23 @@ Tested with [SBCL](http://www.sbcl.org/) 1.1.4.
 
 A full REPL that parses the usual syntax, with a few whistles (bells not yet implemented):
 
-    > (\x.x x) id
+    > (\x.x x) id                                 # Variables, abstraction, application.
     id
-    > (\x y.y x) true id
+    > (\x y.y x) true id                          # Currying for multiple arguments.
     true
-    > not true
+    > not true                                    # Built-in named functions.
     false
-    > =apply.\f x.f x
+    > =apply.\f x.f x                             # Ugly syntax for defining global names.
     apply
-    > apply not true
+    > apply not true                              # Comments, if you haven't noticed.
     false
-    > (\p q r.p q r) id id
+    > (\p q r.p q r) id id                        # Obscure format for printing closures.
     \r.((p q) r) [p,q]
-    > (\p q r.p q r) id id id
+    > (\p q r.p q r) id id id                     # Left-associative application.
     id
-    > (\p q r.z) id id
+    > (\p q r.z) id id                            # Unevaluated closure contents.
     \r.z [p,q]
-    > (\p q r.z) id id id
+    > (\p q r.z) id id id                         # Some error handling.
     Undefined variable: z
 
 Tested with [CPython](http://python.org/) 3.3.1. Significantly improved by [rlwrap](http://utopia.knoware.nl/~hlub/rlwrap/).
