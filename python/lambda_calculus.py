@@ -335,6 +335,9 @@ class REPL():
 			('head', r'\x.first (second x)'),
 			('tail', r'\x.second (second x)'),
 			('last', r'\x.(empty? (tail x)) (head x) (last (tail x))'),
+
+			# Fixed-point combinator.
+			('fix', r'\f.f (fix f)'),
 			])
 
 	def __init__(self):

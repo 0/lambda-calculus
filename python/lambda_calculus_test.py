@@ -236,5 +236,18 @@ class PairTest(TestCase):
 		eq_(['true', 'false', 'false', 'a', 'b', 'empty', 'c'], a)
 
 
+class FixedPointTest(TestCase):
+	def testFix(self):
+		r = make_repl()
+
+		a = r.run_lines([
+			r'fix \x.a',
+			r'fix (\f x.x (f false) x) false',
+			r'fix (\f x.x (f false) x) true',
+			])
+
+		eq_(['a', 'false', 'false'], a)
+
+
 if __name__ == '__main__':
 	main()
