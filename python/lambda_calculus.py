@@ -322,6 +322,19 @@ class REPL():
 			('and', r'\p q.p q p'),
 			('or', r'\p q.p p q'),
 			('xor', r'\p q.p (not q) q'),
+
+			# Church pairs.
+			('pair', r'\a b.\f.f a b'),
+			('first', r'\p.p true'),
+			('second', r'\p.p false'),
+
+			('empty', r'pair true true'),
+			('cons', r'\h t.pair false (pair h t)'),
+
+			('empty?', r'first'),
+			('head', r'\x.first (second x)'),
+			('tail', r'\x.second (second x)'),
+			('last', r'\x.(empty? (tail x)) (head x) (last (tail x))'),
 			])
 
 	def __init__(self):

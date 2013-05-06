@@ -46,5 +46,10 @@ A full REPL that parses the usual syntax, with a few whistles (bells not yet imp
     Undefined variable: z
     > false (id z) true                           # Lazy evaluation.
     true
+    >                                             # Linked lists.
+    > =lst.cons true (cons false (cons apply empty))
+    lst
+    > last lst                                    # Handy list operations.
+    apply
 
 Tested with [CPython](http://python.org/) 3.3.1. Significantly improved by [rlwrap](http://utopia.knoware.nl/~hlub/rlwrap/).

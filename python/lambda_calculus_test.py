@@ -17,6 +17,7 @@ def make_repl():
 		r'=a.(\x.y)',
 		r'=b.(\x.y)',
 		r'=c.(\x.y)',
+		r'=d.(\x.y)',
 		])
 
 	return r
@@ -202,6 +203,37 @@ class BooleanTest(TestCase):
 			])
 
 		eq_(['false', 'true', 'true', 'false'], a)
+
+
+class PairTest(TestCase):
+	def testPairs(self):
+		r = make_repl()
+
+		a = r.run_lines([
+			r'first (pair a b)',
+			r'second (pair a b)',
+			r'first (first (pair (pair a b) (pair c d)))',
+			r'second (first (pair (pair a b) (pair c d)))',
+			r'first (second (pair (pair a b) (pair c d)))',
+			r'second (second (pair (pair a b) (pair c d)))',
+			])
+
+		eq_(['a', 'b', 'a', 'b', 'c', 'd'], a)
+
+	def testLists(self):
+		r = make_repl()
+
+		a = r.run_lines([
+			r'empty? empty',
+			r'empty? (cons a empty)',
+			r'empty? (cons a (cons b empty))',
+			r'head (cons a (cons b empty))',
+			r'head (tail (cons a (cons b empty)))',
+			r'tail (tail (cons a (cons b empty)))',
+			r'last (cons a (cons b (cons c empty)))',
+			])
+
+		eq_(['true', 'false', 'false', 'a', 'b', 'empty', 'c'], a)
 
 
 if __name__ == '__main__':
