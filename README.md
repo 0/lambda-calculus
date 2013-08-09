@@ -55,4 +55,4 @@ A full REPL that parses the usual syntax, with a few whistles (bells not yet imp
     > fix (\f x.(empty? (tail x)) (head x) (f (tail x))) lst
     apply
 
-Tested with [CPython](http://python.org/) 3.3.1. Significantly improved by [rlwrap](http://utopia.knoware.nl/~hlub/rlwrap/).
+Tested with [CPython](http://python.org/) 3.3.2. Significantly improved by [rlwrap](http://utopia.knoware.nl/~hlub/rlwrap/).
