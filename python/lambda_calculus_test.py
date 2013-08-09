@@ -58,6 +58,25 @@ class AbsTest(TestCase):
 
 		eq_(['a', 'b', 'id'], a)
 
+	def testUncurrying(self):
+		r = make_repl()
+
+		a = r.run_lines([
+			r'\x y.x',
+			r'\x.\y.x',
+			r'\a b c.\x y z.x',
+			r'(\a b c.\x y z.x) id',
+			r'(\a b c.\x y z.x) id id id id',
+			])
+
+		eq_([
+			r'\x y.x []',
+			r'\x y.x []',
+			r'\a b c x y z.x []',
+			r'\b c x y z.x [a]',
+			r'\y z.x [a,b,c,x]',
+			], a)
+
 
 class AppTest(TestCase):
 	def testApplications(self):

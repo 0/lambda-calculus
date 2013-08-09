@@ -55,13 +55,21 @@ class Abs(LambdaExpression):
 		self.body = body
 
 	def eval(self, env):
-		return Closure(self.param, self.body, env)
+		return Closure(self, env)
 
 	def __repr__(self):
 		return self.__class__.__name__ + '(' + repr(self.param) + ', ' + repr(self.body) + ')'
 
 	def __str__(self):
-		return '\\' + str(self.param) + '.' + str(self.body)
+		# Uncurry nested abstractions.
+		cur = self
+		params = []
+
+		while isinstance(cur, Abs):
+			params.append(str(cur.param))
+			cur = cur.body
+
+		return r'\{}.{}'.format(' '.join(params), cur)
 
 class App(LambdaExpression):
 	"""
@@ -141,16 +149,17 @@ class Ass(LambdaExpression):
 
 
 class Closure:
-	def __init__(self, param, body, env):
+	def __init__(self, a, env):
 		"""
-		param: Variable
-		body: LambdaExpression
+		a: Abs
 		env: ChainMap
 		"""
 
-		self.param = param
-		self.body = body
+		self.a = a
 		self.env = env
+
+		self.param = self.a.param
+		self.body = self.a.body
 
 	def apply(self, arg):
 		child_env = self.env.new_child()
@@ -171,7 +180,7 @@ class Closure:
 		return self.__class__.__name__ + '(' + repr(self.param) + ', ' + repr(self.body) + ', ' + repr(self.env) + ')'
 
 	def __str__(self):
-		return '\\' + str(self.param) + '.' + str(self.body) + ' [' + ','.join(self._non_globals()) + ']'
+		return '{} [{}]'.format(self.a, ','.join(self._non_globals()))
 
 class Thunk:
 	def __init__(self, body):
