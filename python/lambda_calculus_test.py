@@ -74,7 +74,7 @@ class AbsTest(TestCase):
 			r'\x y.x []',
 			r'\a b c x y z.x []',
 			r'\b c x y z.x [a]',
-			r'\y z.x [a,b,c,x]',
+			r'\y z.x [a b c x]',
 			], a)
 
 

@@ -37,11 +37,11 @@ A full REPL that parses the usual syntax, with a few whistles (bells not yet imp
     > apply not true                              # Comments, if you haven't noticed.
     false
     > (\p q r.p q r) id id                        # Obscure format for printing closures.
-    \r.((p q) r) [p,q]
+    \r.((p q) r) [p q]
     > (\p q r.p q r) id id id                     # Left-associative application.
     id
     > (\p q r.z) id id                            # Unevaluated closure contents.
-    \r.z [p,q]
+    \r.z [p q]
     > (\p q r.z) id id id                         # Some error handling.
     Undefined variable: z
     > false (id z) true                           # Lazy evaluation.

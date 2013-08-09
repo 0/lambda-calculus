@@ -180,7 +180,7 @@ class Closure:
 		return self.__class__.__name__ + '(' + repr(self.param) + ', ' + repr(self.body) + ', ' + repr(self.env) + ')'
 
 	def __str__(self):
-		return '{} [{}]'.format(self.a, ','.join(self._non_globals()))
+		return '{} [{}]'.format(self.a, ' '.join(self._non_globals()))
 
 class Thunk:
 	def __init__(self, body):
