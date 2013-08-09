@@ -8,7 +8,7 @@ class LambdaError(Exception):
 	pass
 
 
-class Var():
+class Var:
 	"""
 	Variable.
 
@@ -35,7 +35,7 @@ class Var():
 	def __str__(self):
 		return self.name
 
-class Abs():
+class Abs:
 	"""
 	Abstraction.
 
@@ -60,7 +60,7 @@ class Abs():
 	def __str__(self):
 		return '\\' + str(self.param) + '.' + str(self.body)
 
-class App():
+class App:
 	"""
 	Application.
 
@@ -91,7 +91,7 @@ class App():
 	def __str__(self):
 		return '(' + str(self.fn) + ' ' + str(self.arg) + ')'
 
-class Ass():
+class Ass:
 	"""
 	Global assignment.
 
@@ -137,7 +137,7 @@ class Ass():
 		return '=' + str(self.var) + '.' + str(self.value)
 
 
-class Closure():
+class Closure:
 	def __init__(self, param, body, env):
 		"""
 		param: Variable
@@ -170,7 +170,7 @@ class Closure():
 	def __str__(self):
 		return '\\' + str(self.param) + '.' + str(self.body) + ' [' + ','.join(self._non_globals()) + ']'
 
-class Thunk():
+class Thunk:
 	def __init__(self, body):
 		"""
 		body: function
@@ -196,7 +196,7 @@ class Thunk():
 		return 'Thunk'
 
 
-class Parser():
+class Parser:
 	@classmethod
 	def read(cls, text):
 		"""
@@ -306,7 +306,7 @@ class Parser():
 		return result
 
 
-class REPL():
+class REPL:
 	"""
 	Read, eval, print, loop.
 	"""
