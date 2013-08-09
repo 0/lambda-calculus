@@ -8,7 +8,10 @@ class LambdaError(Exception):
 	pass
 
 
-class Var:
+class LambdaExpression:
+	pass
+
+class Var(LambdaExpression):
 	"""
 	Variable.
 
@@ -35,7 +38,7 @@ class Var:
 	def __str__(self):
 		return self.name
 
-class Abs:
+class Abs(LambdaExpression):
 	"""
 	Abstraction.
 
@@ -60,7 +63,7 @@ class Abs:
 	def __str__(self):
 		return '\\' + str(self.param) + '.' + str(self.body)
 
-class App:
+class App(LambdaExpression):
 	"""
 	Application.
 
@@ -91,7 +94,7 @@ class App:
 	def __str__(self):
 		return '(' + str(self.fn) + ' ' + str(self.arg) + ')'
 
-class Ass:
+class Ass(LambdaExpression):
 	"""
 	Global assignment.
 
