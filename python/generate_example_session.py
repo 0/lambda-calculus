@@ -12,7 +12,7 @@ LINES = [
 		(r'(\x y.y x) true id', 'Currying for multiple arguments.', r'true'),
 		(r'not true', 'Built-in named functions.', r'false'),
 		(r'=apply.\f x.f x', 'Ugly syntax for defining global names.', r'apply'),
-		(r'apply not true', 'Comments, if you haven\'t noticed.', r'false'),
+		(r'', 'Comments, if you haven\'t noticed.', r''),
 		(r'(\p q r.p q r) id id', 'Obscure format for printing closures.', r'\r.((p q) r) [p q]'),
 		(r'(\p q r.p q r) id id id', 'Left-associative application.', r'id'),
 		(r'(\p q r.z) id id', 'Unevaluated closure contents.', r'\r.z [p q]'),
@@ -20,7 +20,7 @@ LINES = [
 		(r'false (id z) true', 'Lazy evaluation.', r'true'),
 		(r'=lst.cons true (cons false (cons apply empty))', 'Linked lists.', r'lst'),
 		(r'last lst', 'Handy list operations.', r'apply'),
-		(r',last', 'Value inspection.', r'last', r'\x.(((empty? (tail x)) (head x)) (last (tail x))) []'),
+		(r',last', 'Value inspection, named recursion.', r'last', r'\x.(((empty? (tail x)) (head x)) (last (tail x))) []'),
 		(r'fix (\f x.(empty? (tail x)) (head x) (f (tail x))) lst', 'Anonymous recursion.', r'apply'),
 		]
 
@@ -44,7 +44,8 @@ def run_line(r, line, comment, expected, extra):
 	for e in extra:
 		print('    {}'.format(e))
 
-	print('    {}'.format(expected))
+	if expected:
+		print('    {}'.format(expected))
 
 
 if __name__ == '__main__':

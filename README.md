@@ -34,8 +34,7 @@ A full REPL that parses the usual syntax, with a few whistles (bells not yet imp
     false
     > =apply.\f x.f x                             # Ugly syntax for defining global names.
     apply
-    > apply not true                              # Comments, if you haven't noticed.
-    false
+    >                                             # Comments, if you haven't noticed.
     > (\p q r.p q r) id id                        # Obscure format for printing closures.
     \r.((p q) r) [p q]
     > (\p q r.p q r) id id id                     # Left-associative application.
@@ -51,7 +50,7 @@ A full REPL that parses the usual syntax, with a few whistles (bells not yet imp
     lst
     > last lst                                    # Handy list operations.
     apply
-    > ,last                                       # Value inspection.
+    > ,last                                       # Value inspection, named recursion.
     \x.(((empty? (tail x)) (head x)) (last (tail x))) []
     last
     >                                             # Anonymous recursion.
