@@ -16,7 +16,17 @@ extra_info = noop
 
 
 class LambdaExpression:
-	pass
+	def __init__(self):
+		# By default, don't output surrounding parentheses.
+		self.surround_on_str = False
+
+	def __str__(self):
+		s = self._stringify()
+
+		if self.surround_on_str:
+			return '(' + s + ')'
+		else:
+			return s
 
 class Var(LambdaExpression):
 	"""
@@ -25,10 +35,12 @@ class Var(LambdaExpression):
 	x
 	"""
 
-	def __init__(self, name):
+	def __init__(self, name, *args, **kwargs):
 		"""
 		name: str
 		"""
+
+		super().__init__(*args, **kwargs)
 
 		self.name = name
 
@@ -39,11 +51,11 @@ class Var(LambdaExpression):
 			# I'm free!
 			raise LambdaError('Undefined variable: ' + str(self)) from None
 
+	def _stringify(self):
+		return self.name
+
 	def __repr__(self):
 		return self.__class__.__name__ + '(' + self.name + ')'
-
-	def __str__(self):
-		return self.name
 
 class Abs(LambdaExpression):
 	"""
@@ -52,11 +64,13 @@ class Abs(LambdaExpression):
 	\\x y.z
 	"""
 
-	def __init__(self, param, body):
+	def __init__(self, param, body, *args, **kwargs):
 		"""
 		param: Variable
 		body: LambdaExpression
 		"""
+
+		super().__init__(*args, **kwargs)
 
 		self.param = param
 		self.body = body
@@ -64,10 +78,7 @@ class Abs(LambdaExpression):
 	def eval(self, env):
 		return Closure(self, env)
 
-	def __repr__(self):
-		return self.__class__.__name__ + '(' + repr(self.param) + ', ' + repr(self.body) + ')'
-
-	def __str__(self):
+	def _stringify(self):
 		# Uncurry nested abstractions.
 		cur = self
 		params = []
@@ -78,6 +89,9 @@ class Abs(LambdaExpression):
 
 		return r'\{}.{}'.format(' '.join(params), cur)
 
+	def __repr__(self):
+		return self.__class__.__name__ + '(' + repr(self.param) + ', ' + repr(self.body) + ')'
+
 class App(LambdaExpression):
 	"""
 	Application.
@@ -85,11 +99,13 @@ class App(LambdaExpression):
 	x y
 	"""
 
-	def __init__(self, fn, arg):
+	def __init__(self, fn, arg, *args, **kwargs):
 		"""
 		fn: LambdaExpression
 		arg: LambdaExpression
 		"""
+
+		super().__init__(*args, **kwargs)
 
 		self.fn = fn
 		self.arg = arg
@@ -103,11 +119,11 @@ class App(LambdaExpression):
 
 		return Thunk(body)
 
+	def _stringify(self):
+		return '{} {}'.format(self.fn, self.arg)
+
 	def __repr__(self):
 		return self.__class__.__name__ + '(' + repr(self.fn) + ', ' + repr(self.arg) + ')'
-
-	def __str__(self):
-		return '(' + str(self.fn) + ' ' + str(self.arg) + ')'
 
 class Ass(LambdaExpression):
 	"""
@@ -116,11 +132,13 @@ class Ass(LambdaExpression):
 	=x.y
 	"""
 
-	def __init__(self, var, value):
+	def __init__(self, var, value, *args, **kwargs):
 		"""
 		var: Variable
 		value: LambdaExpression
 		"""
+
+		super().__init__(*args, **kwargs)
 
 		self.var = var
 		self.value = value
@@ -148,11 +166,11 @@ class Ass(LambdaExpression):
 
 		return result
 
+	def _stringify(self):
+		return '={}.{}'.format(self.var, self.value)
+
 	def __repr__(self):
 		return self.__class__.__name__ + '(' + repr(self.var) + ', ' + repr(self.value) + ')'
-
-	def __str__(self):
-		return '=' + str(self.var) + '.' + str(self.value)
 
 class Que(LambdaExpression):
 	"""
@@ -161,10 +179,12 @@ class Que(LambdaExpression):
 	,x
 	"""
 
-	def __init__(self, value):
+	def __init__(self, value, *args, **kwargs):
 		"""
 		value: LambdaExpression
 		"""
+
+		super().__init__(*args, **kwargs)
 
 		self.value = value
 
@@ -177,11 +197,11 @@ class Que(LambdaExpression):
 
 		return result
 
+	def _stringify(self):
+		return ',{}'.format(self.value)
+
 	def __repr__(self):
 		return self.__class__.__name__ + '(' + repr(self.value) + ')'
-
-	def __str__(self):
-		return ',{}'.format(self.value)
 
 
 class Closure:
@@ -356,6 +376,14 @@ class Parser:
 				elif result is None:
 					result = new
 				else:
+					# Ensure that when the function and argument are output,
+					# they are correctly parenthesized.
+					if isinstance(result, (Abs, Ass, Que)):
+						result.surround_on_str = True
+
+					if isinstance(new, App):
+						new.surround_on_str = True
+
 					result = App(result, new)
 
 			if done:
@@ -392,7 +420,7 @@ class REPL:
 			('empty?', r'first'),
 			('head', r'\x.first (second x)'),
 			('tail', r'\x.second (second x)'),
-			('last', r'\x.(empty? (tail x)) (head x) (last (tail x))'),
+			('last', r'\x.empty? (tail x) (head x) (last (tail x))'),
 
 			# Fixed-point combinator.
 			('fix', r'\f.f (fix f)'),

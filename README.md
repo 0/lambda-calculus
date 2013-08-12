@@ -36,7 +36,7 @@ A full REPL that parses the usual syntax, with a few whistles (bells not yet imp
     apply
     >                                             # Comments, if you haven't noticed.
     > (\p q r.p q r) id id                        # Obscure format for printing closures.
-    \r.((p q) r) [p q]
+    \r.p q r [p q]
     > (\p q r.p q r) id id id                     # Left-associative application.
     id
     > (\p q r.z) id id                            # Unevaluated closure contents.
@@ -51,10 +51,10 @@ A full REPL that parses the usual syntax, with a few whistles (bells not yet imp
     > last lst                                    # Handy list operations.
     apply
     > ,last                                       # Value inspection, named recursion.
-    \x.(((empty? (tail x)) (head x)) (last (tail x))) []
+    \x.empty? (tail x) (head x) (last (tail x)) []
     last
     >                                             # Anonymous recursion.
-    > fix (\f x.(empty? (tail x)) (head x) (f (tail x))) lst
+    > fix (\f x.empty? (tail x) (head x) (f (tail x))) lst
     apply
 
 Tested with [CPython](http://python.org/) 3.3.2. Significantly improved by [rlwrap](http://utopia.knoware.nl/~hlub/rlwrap/).

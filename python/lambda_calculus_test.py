@@ -16,10 +16,10 @@ def make_repl():
 	r = REPL()
 
 	r.run_lines([
-		r'=a.(\x.y)',
-		r'=b.(\x.y)',
-		r'=c.(\x.y)',
-		r'=d.(\x.y)',
+		r'=a.\x.y',
+		r'=b.\x.y',
+		r'=c.\x.y',
+		r'=d.\x.y',
 		])
 
 	return r
@@ -139,7 +139,7 @@ class AssTest(TestCase):
 			r.run_line(r'x')
 
 		a = r.run_lines([
-			r'=x.(\x.x)',
+			r'=x.\x.x',
 			r'x x x x x',
 			r'x id'
 			])
@@ -165,7 +165,7 @@ class QueTest(TestCase):
 				])
 
 		eq_(['id', 'id', 'id', 'id', 'id', 'id', 'first', 'id', 'first'], a)
-		eq_([r'\x.x []'] * 5 + [r'\p.(p true) []'] * 2 + [r'\x.x []'] * 4, o)
+		eq_([r'\x.x []'] * 5 + [r'\p.p true []'] * 2 + [r'\x.x []'] * 4, o)
 
 
 class SyntaxText(TestCase):
@@ -191,6 +191,23 @@ class SyntaxText(TestCase):
 			])
 
 		eq_(['a', 'b'], a)
+
+	def testOutputParens(self):
+		r = make_repl()
+
+		a = r.run_lines([
+			r'\z.(\x.x)',
+			r'\z.(\x.x) (\x.x)',
+			r'\z.\x.x \x.x',
+			])
+
+		e = ([
+			r'\z x.x []',
+			r'\z.(\x.x) \x.x []',
+			r'\z x.x \x.x []',
+			])
+
+		eq_(e, a)
 
 
 class EvaluationTest(TestCase):
