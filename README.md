@@ -51,6 +51,9 @@ A full REPL that parses the usual syntax, with a few whistles (bells not yet imp
     lst
     > last lst                                    # Handy list operations.
     apply
+    > ,last                                       # Value inspection.
+    \x.(((empty? (tail x)) (head x)) (last (tail x))) []
+    last
     >                                             # Anonymous recursion.
     > fix (\f x.(empty? (tail x)) (head x) (f (tail x))) lst
     apply

@@ -8,6 +8,13 @@ class LambdaError(Exception):
 	pass
 
 
+def noop(*args, **kwargs):
+	pass
+
+# Called with extra info to be output at the REPL.
+extra_info = noop
+
+
 class LambdaExpression:
 	pass
 
@@ -147,6 +154,35 @@ class Ass(LambdaExpression):
 	def __str__(self):
 		return '=' + str(self.var) + '.' + str(self.value)
 
+class Que(LambdaExpression):
+	"""
+	Value inspection.
+
+	,x
+	"""
+
+	def __init__(self, value):
+		"""
+		value: LambdaExpression
+		"""
+
+		self.value = value
+
+	def eval(self, env):
+		# Obtain the result of the sub-expression, which will be returned as
+		# the result of the overall expression.
+		result = Thunk.un(self.value.eval(env))
+
+		extra_info(result)
+
+		return result
+
+	def __repr__(self):
+		return self.__class__.__name__ + '(' + repr(self.value) + ')'
+
+	def __str__(self):
+		return ',{}'.format(self.value)
+
 
 class Closure:
 	def __init__(self, a, env):
@@ -229,12 +265,13 @@ class Parser:
 				(?P<LAMBDA>\\)|
 				(?P<EQUAL>=)|
 				(?P<DOT>\.)|
+				(?P<QUERY>,)|
 				(?P<COMMENT>\#.*?$)|
-				(?P<SYMBOL>[^\s()\\.#]+)
+				(?P<SYMBOL>[^\s()\\.,#]+)
 				""", re.MULTILINE | re.VERBOSE)
 
 		ignored_tokens = {'COMMENT'}
-		simple_tokens = {'OPEN', 'CLOSE', 'LAMBDA', 'EQUAL', 'DOT'}
+		simple_tokens = {'OPEN', 'CLOSE', 'LAMBDA', 'EQUAL', 'DOT', 'QUERY'}
 		data_tokens = {'SYMBOL'}
 
 		for m in pat.finditer(text):
@@ -299,6 +336,15 @@ class Parser:
 					raise LambdaError('No value to assign: ' + var.name)
 
 				new = Ass(var, value)
+
+				done = True
+			elif t == 'QUERY':
+				value = cls._parse(tokens)
+
+				if not value:
+					raise LambdaError('No value to query')
+
+				new = Que(value)
 
 				done = True
 			elif t == 'SYMBOL':
@@ -392,6 +438,7 @@ class REPL:
 
 
 if __name__ == '__main__':
-	repl = REPL()
+	extra_info = print
 
+	repl = REPL()
 	repl.run()

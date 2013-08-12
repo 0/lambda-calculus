@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 
+from contextlib import contextmanager
 from nose.tools import assert_raises, eq_
 from unittest import main, TestCase
 
+import lambda_calculus
 from lambda_calculus import REPL, LambdaError
 
 
@@ -21,6 +23,24 @@ def make_repl():
 		])
 
 	return r
+
+@contextmanager
+def collect_extra_info():
+	"""
+	Gather the data output through extra_info.
+	"""
+
+	values = []
+
+	def writer(v):
+		values.append(str(v))
+
+	try:
+		lambda_calculus.extra_info = writer
+
+		yield values
+	finally:
+		lambda_calculus.extra_info = lambda_calculus.noop
 
 
 class VarTest(TestCase):
@@ -125,6 +145,27 @@ class AssTest(TestCase):
 			])
 
 		eq_(['x', 'x', 'id'], a)
+
+
+class QueTest(TestCase):
+	def testInspection(self):
+		r = make_repl()
+
+		with collect_extra_info() as o:
+			a = r.run_lines([
+				r',id',
+				r',(id)',
+				r'(,id)',
+				r',(true id first)',
+				r'(,true id first)',
+				r'(true id ,id first)',
+				r'(false id ,id first)',
+				r'true (,,id) first',
+				r'false (,,id) first',
+				])
+
+		eq_(['id', 'id', 'id', 'id', 'id', 'id', 'first', 'id', 'first'], a)
+		eq_([r'\x.x []'] * 5 + [r'\p.(p true) []'] * 2 + [r'\x.x []'] * 4, o)
 
 
 class SyntaxText(TestCase):

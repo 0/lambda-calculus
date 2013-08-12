@@ -20,11 +20,12 @@ LINES = [
 		(r'false (id z) true', 'Lazy evaluation.', r'true'),
 		(r'=lst.cons true (cons false (cons apply empty))', 'Linked lists.', r'lst'),
 		(r'last lst', 'Handy list operations.', r'apply'),
+		(r',last', 'Value inspection.', r'last', r'\x.(((empty? (tail x)) (head x)) (last (tail x))) []'),
 		(r'fix (\f x.(empty? (tail x)) (head x) (f (tail x))) lst', 'Anonymous recursion.', r'apply'),
 		]
 
 
-def run_line(r, line, comment, expected):
+def run_line(r, line, comment, expected, extra):
 	try:
 		actual = r.run_line(line)
 	except LambdaError as exc:
@@ -40,11 +41,14 @@ def run_line(r, line, comment, expected):
 	else:
 		print('    > {}{} # {}'.format(line, ' ' * (MAX_WIDTH - len(line)), comment))
 
+	for e in extra:
+		print('    {}'.format(e))
+
 	print('    {}'.format(expected))
 
 
 if __name__ == '__main__':
 	r = REPL()
 
-	for line, comment, expected in LINES:
-		run_line(r, line, comment, expected)
+	for line, comment, expected, *extra in LINES:
+		run_line(r, line, comment, expected, extra)
