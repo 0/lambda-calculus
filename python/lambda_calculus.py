@@ -20,6 +20,11 @@ class LambdaExpression:
 		# By default, don't output surrounding parentheses.
 		self.surround_on_str = False
 
+	def __repr__(self):
+		args = ', '.join(repr(x) for x in self._args())
+
+		return '{}({})'.format(self.__class__.__name__, args)
+
 	def __str__(self):
 		s = self._stringify()
 
@@ -51,11 +56,11 @@ class Var(LambdaExpression):
 			# I'm free!
 			raise LambdaError('Undefined variable: ' + str(self)) from None
 
+	def _args(self):
+		return [self.name]
+
 	def _stringify(self):
 		return self.name
-
-	def __repr__(self):
-		return self.__class__.__name__ + '(' + self.name + ')'
 
 class Abs(LambdaExpression):
 	"""
@@ -78,6 +83,9 @@ class Abs(LambdaExpression):
 	def eval(self, env):
 		return Closure(self, env)
 
+	def _args(self):
+		return [self.param, self.body]
+
 	def _stringify(self):
 		# Uncurry nested abstractions.
 		cur = self
@@ -88,9 +96,6 @@ class Abs(LambdaExpression):
 			cur = cur.body
 
 		return r'\{}.{}'.format(' '.join(params), cur)
-
-	def __repr__(self):
-		return self.__class__.__name__ + '(' + repr(self.param) + ', ' + repr(self.body) + ')'
 
 class App(LambdaExpression):
 	"""
@@ -119,11 +124,11 @@ class App(LambdaExpression):
 
 		return Thunk(body)
 
+	def _args(self):
+		return [self.fn, self.arg]
+
 	def _stringify(self):
 		return '{} {}'.format(self.fn, self.arg)
-
-	def __repr__(self):
-		return self.__class__.__name__ + '(' + repr(self.fn) + ', ' + repr(self.arg) + ')'
 
 class Ass(LambdaExpression):
 	"""
@@ -166,11 +171,11 @@ class Ass(LambdaExpression):
 
 		return result
 
+	def _args(self):
+		return [self.var, self.value]
+
 	def _stringify(self):
 		return '={}.{}'.format(self.var, self.value)
-
-	def __repr__(self):
-		return self.__class__.__name__ + '(' + repr(self.var) + ', ' + repr(self.value) + ')'
 
 class Que(LambdaExpression):
 	"""
@@ -197,11 +202,11 @@ class Que(LambdaExpression):
 
 		return result
 
+	def _args(self):
+		return [self.value]
+
 	def _stringify(self):
 		return ',{}'.format(self.value)
-
-	def __repr__(self):
-		return self.__class__.__name__ + '(' + repr(self.value) + ')'
 
 
 class Closure:
@@ -233,7 +238,7 @@ class Closure:
 			return []
 
 	def __repr__(self):
-		return self.__class__.__name__ + '(' + repr(self.param) + ', ' + repr(self.body) + ', ' + repr(self.env) + ')'
+		return self.__class__.__name__ + '(' + repr(self.a) + ', ' + repr(self.env) + ')'
 
 	def __str__(self):
 		return '{} [{}]'.format(self.a, ' '.join(self._non_globals()))
@@ -261,7 +266,7 @@ class Thunk:
 		return self.body()
 
 	def __repr__(self):
-		return 'Thunk'
+		return '<Thunk {}>'.format(self.body)
 
 
 class Parser:
