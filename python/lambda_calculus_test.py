@@ -4,8 +4,7 @@ from contextlib import contextmanager
 from nose.tools import assert_raises, eq_
 from unittest import main, TestCase
 
-import lambda_calculus
-from lambda_calculus import REPL, LambdaError
+from lambda_calculus import LambdaError, REPL, set_extra_info
 
 
 def make_repl():
@@ -36,11 +35,11 @@ def collect_extra_info():
 		values.append(str(v))
 
 	try:
-		lambda_calculus.extra_info = writer
+		set_extra_info(writer)
 
 		yield values
 	finally:
-		lambda_calculus.extra_info = lambda_calculus.noop
+		set_extra_info()
 
 
 class VarTest(TestCase):

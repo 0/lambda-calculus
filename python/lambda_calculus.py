@@ -14,6 +14,11 @@ def noop(*args, **kwargs):
 # Called with extra info to be output at the REPL.
 extra_info = noop
 
+def set_extra_info(f=noop):
+	global extra_info
+
+	extra_info = f
+
 
 class LambdaExpression:
 	def __init__(self):
@@ -455,16 +460,16 @@ class REPL:
 	def run_lines(self, lines):
 		return list(map(self.run_line, lines))
 
-	def run(self):
+	def run(self, i=input, o=print):
 		try:
 			while True:
 				try:
-					result = self.run_line(input('> '))
+					result = self.run_line(i('> '))
 
 					if result:
-						print(result)
+						o(result)
 				except LambdaError as exc:
-					print(exc)
+					o(exc)
 		except EOFError:
 			# Terminate gracefully.
 			pass
