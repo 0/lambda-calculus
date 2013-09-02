@@ -49,6 +49,17 @@ class VarTest(TestCase):
 		with assert_raises(LambdaError):
 			r.run_line(r'x')
 
+	def testUndefinedLocation(self):
+		r = make_repl()
+
+		problematic = r'(\p q r.(false (id z) id) z) id id id'
+		error = 'Undefined variable: z\n{}\n{}^'
+
+		with assert_raises(LambdaError) as cm:
+			r.run_line(problematic)
+
+		eq_(error.format(problematic, ' ' * 26), str(cm.exception))
+
 
 class AbsTest(TestCase):
 	def testMissingBits(self):
@@ -65,6 +76,17 @@ class AbsTest(TestCase):
 
 		with assert_raises(LambdaError):
 			r.run_line(r'\x y.')
+
+	def testMissingBitsLocation(self):
+		r = make_repl()
+
+		problematic = r'\x.\.\z.x y z'
+		error = 'No parameters in lambda\n{}\n{}^'
+
+		with assert_raises(LambdaError) as cm:
+			r.run_line(problematic)
+
+		eq_(error.format(problematic, ' ' * 3), str(cm.exception))
 
 	def testParams(self):
 		r = make_repl()

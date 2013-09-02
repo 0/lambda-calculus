@@ -5,7 +5,13 @@ import re
 
 
 class LambdaError(Exception):
-	pass
+	def __init__(self, msg, line, pos):
+		self.msg = msg
+		self.line = line
+		self.pos = pos
+
+	def __str__(self):
+		return '{}\n{}\n{}^'.format(self.msg, self.line, ' ' * self.pos)
 
 
 def noop(*args, **kwargs):
@@ -21,7 +27,11 @@ def set_extra_info(f=noop):
 
 
 class LambdaExpression:
-	def __init__(self):
+	def __init__(self, *, line, pos):
+		# Keep track of where this was in the source code.
+		self.line = line
+		self.pos = pos
+
 		# By default, don't output surrounding parentheses.
 		self.surround_on_str = False
 
@@ -59,7 +69,7 @@ class Var(LambdaExpression):
 			return env[self.name]
 		except KeyError:
 			# I'm free!
-			raise LambdaError('Undefined variable: ' + str(self)) from None
+			raise LambdaError('Undefined variable: ' + str(self), self.line, self.pos) from None
 
 	def _args(self):
 		return [self.name]
@@ -164,7 +174,7 @@ class Ass(LambdaExpression):
 		try:
 			name = self.var.name
 		except AttributeError:
-			raise LambdaError('Not a variable: ' + str(self.var)) from None
+			raise LambdaError('Not a variable: ' + str(self.var), self.var.line, self.var.pos) from None
 
 		try:
 			result.global_name
@@ -274,6 +284,16 @@ class Thunk:
 		return '<Thunk {}>'.format(self.body)
 
 
+class Token:
+	def __init__(self, kind, line, pos, *, value=None):
+		self.kind = kind
+
+		self.line = line
+		self.pos = pos
+
+		self.value = value
+
+
 class Parser:
 	@classmethod
 	def read(cls, text):
@@ -309,12 +329,14 @@ class Parser:
 				if v is None:
 					continue
 
+				pos = m.start(k)
+
 				if k in ignored_tokens:
 					continue
 				elif k in simple_tokens:
-					yield k, None
+					yield Token(k, text, pos)
 				elif k in data_tokens:
-					yield k, v
+					yield Token(k, text, pos, value=v)
 
 				break
 
@@ -329,56 +351,56 @@ class Parser:
 		else:
 			result = None
 
-		for t, d in tokens:
+		for t in tokens:
 			new = None
 			done = False
 
-			if t == 'OPEN':
+			if t.kind == 'OPEN':
 				new = cls._parse(tokens)
-			elif t in {'CLOSE', 'DOT'}:
+			elif t.kind in {'CLOSE', 'DOT'}:
 				done = True
-			elif t == 'LAMBDA':
+			elif t.kind == 'LAMBDA':
 				params = cls._parse(tokens, get_params=True)
 
 				if not params:
-					raise LambdaError('No parameters in lambda')
+					raise LambdaError('No parameters in lambda', t.line, t.pos)
 
 				body = cls._parse(tokens)
 
 				if not body:
-					raise LambdaError('No body in lambda')
+					raise LambdaError('No body in lambda', t.line, t.pos)
 
-				new = Abs(params[-1], body)
+				new = Abs(params[-1], body, line=t.line, pos=t.pos)
 
 				for param in params[-2::-1]:
-					new = Abs(param, new)
+					new = Abs(param, new, line=t.line, pos=t.pos)
 
 				done = True
-			elif t == 'EQUAL':
+			elif t.kind == 'EQUAL':
 				var = cls._parse(tokens)
 
 				if not var:
-					raise LambdaError('No variable to assign to')
+					raise LambdaError('No variable to assign to', t.line, t.pos)
 
 				value = cls._parse(tokens)
 
 				if not value:
-					raise LambdaError('No value to assign: ' + var.name)
+					raise LambdaError('No value to assign: ' + var.name, t.line, t.pos)
 
-				new = Ass(var, value)
+				new = Ass(var, value, line=t.line, pos=t.pos)
 
 				done = True
-			elif t == 'QUERY':
+			elif t.kind == 'QUERY':
 				value = cls._parse(tokens)
 
 				if not value:
-					raise LambdaError('No value to query')
+					raise LambdaError('No value to query', t.line, t.pos)
 
-				new = Que(value)
+				new = Que(value, line=t.line, pos=t.pos)
 
 				done = True
-			elif t == 'SYMBOL':
-				new = Var(d)
+			elif t.kind == 'SYMBOL':
+				new = Var(t.value, line=t.line, pos=t.pos)
 
 			if new is not None:
 				if get_params:
@@ -394,7 +416,7 @@ class Parser:
 					if isinstance(new, App):
 						new.surround_on_str = True
 
-					result = App(result, new)
+					result = App(result, new, line=new.line, pos=new.pos)
 
 			if done:
 				break

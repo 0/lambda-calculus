@@ -41,8 +41,11 @@ A full REPL that parses the usual syntax, with a few whistles (bells not yet imp
     id
     > (\p q r.z) id id                            # Unevaluated closure contents.
     \r.z [p q]
-    > (\p q r.z) id id id                         # Some error handling.
+    >                                             # Some error handling.
+    > (\p q r.z) id id id
     Undefined variable: z
+    (\p q r.z) id id id
+            ^
     > false (id z) true                           # Lazy evaluation.
     true
     >                                             # Linked lists.

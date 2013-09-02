@@ -18,7 +18,8 @@ INPUT = [
 		(r'(\p q r.p q r) id id', 'Obscure format for printing closures.'),
 		(r'(\p q r.p q r) id id id', 'Left-associative application.'),
 		(r'(\p q r.z) id id', 'Unevaluated closure contents.'),
-		(r'(\p q r.z) id id id', 'Some error handling.'),
+		(r'', 'Some error handling.'),  # It doesn't look as nice if the comment
+		(r'(\p q r.z) id id id', None), # is repeated in the error message.
 		(r'false (id z) true', 'Lazy evaluation.'),
 		(r'=lst.cons true (cons false (cons apply empty))', 'Linked lists.'),
 		(r'last lst', 'Handy list operations.'),
